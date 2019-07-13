@@ -4,6 +4,7 @@ import edu.dcccd.trans.entity.Transaction;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 public class SingletonTransaction
 {
     private static SingletonTransaction instance = null;

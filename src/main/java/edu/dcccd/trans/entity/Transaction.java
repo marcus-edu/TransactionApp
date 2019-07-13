@@ -39,3 +39,4 @@ public class Transaction
         return now.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM));
     }
 }
+
