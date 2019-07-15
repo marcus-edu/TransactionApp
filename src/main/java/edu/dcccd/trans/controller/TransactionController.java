@@ -1,7 +1,10 @@
 package edu.dcccd.trans.controller;
 
 import edu.dcccd.trans.entity.Transaction;
-import edu.dcccd.trans.repository.SingletonTransaction;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import javax.persistence.*;
 import edu.dcccd.trans.service.TransactionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,21 +24,24 @@ import java.util.stream.Collectors;
 public class TransactionController {
     @Value("${spring.application.name}")
     private String appName;
+
     @Autowired
     TransactionServiceImpl transactionService;
+
     @GetMapping("/")
     public String homePage(Model model){
         model.addAttribute("appName",appName);
         return "home";
     }
+
     @GetMapping("/transaction")
     public String loadTransactionPage(Model model){
-        List<Transaction> transactions = transactionService.getAllTransaction();
         model.addAttribute("transactionForm", new Transaction());
         model.addAttribute("days",getDays());
-        model.addAttribute("transactions", transactions);
+        model.addAttribute("transactions", transactionService.getAllTransaction());
         return "transaction";
     }
+
     @PostMapping(value="/create")
     public String createTransaction( @Valid
                                      @ModelAttribute("transactionForm")
@@ -53,10 +59,13 @@ public class TransactionController {
             model.addAttribute("errors", errors);
             return "transaction";
         }
-        transaction.setId(SingletonTransaction.getInstance().autoIncrementID+=1);
+        LocalDateTime now = LocalDateTime.now();
+        String time = now.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM));
+        transaction.setTime(time);
         transactionService.createTransaction(transaction);
         return "redirect:transaction";
     }
+
     private List<String> getDays(){
         return Arrays.stream(DayOfWeek.values())
                 .map(Enum :: toString)
